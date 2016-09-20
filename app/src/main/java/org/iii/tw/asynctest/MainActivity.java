@@ -18,14 +18,14 @@ public class MainActivity extends AppCompatActivity {
 
     public void test1(View v){
         mt1 = new MyTask();
-        mt1.execute();
+        mt1.execute("Brad","Kevin","Tony","John","Eric");
     }
     public void test2(View v){
         if(mt1 != null && !mt1.isCancelled()){   //防止沒按1而按2, 不等於空值而且沒有被取消
             mt1.cancel(true);
         }
     }
-    private class MyTask extends AsyncTask<Void,Void,Void>{             //非同步的概念
+    private class MyTask extends AsyncTask<String,Void,Void>{             //非同步的概念
         @Override
         protected void onPreExecute() {        //前
             super.onPreExecute();
@@ -34,8 +34,16 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Void doInBackground(Void... params) {                //在背景中去做
+        protected Void doInBackground(String... params) {                //在背景中去做
             Log.d("brad","doInBackground");
+            for (String name : params){
+                Log.d("brad","Hello"+name);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
             return null;
         }
 
