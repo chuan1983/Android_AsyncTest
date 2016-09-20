@@ -6,14 +6,18 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
     private MyTask mt1;
+    private TextView mesg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mesg = (TextView)findViewById(R.id.mesg);
     }
 
     public void test1(View v){
@@ -25,7 +29,7 @@ public class MainActivity extends AppCompatActivity {
             mt1.cancel(true);
         }
     }
-    private class MyTask extends AsyncTask<String,Void,Void>{             //非同步的概念
+    private class MyTask extends AsyncTask<String,Object,String>{             //非同步的概念
         @Override
         protected void onPreExecute() {        //前
             super.onPreExecute();
@@ -34,37 +38,45 @@ public class MainActivity extends AppCompatActivity {
         }
 
         @Override
-        protected Void doInBackground(String... params) {                //在背景中去做
+        //        第三個                第一個
+        protected String doInBackground(String... params) {                //在背景中去做
             Log.d("brad","doInBackground");
+            int i = 0;
+            boolean isCancel = false;
             for (String name : params){
-                Log.d("brad","Hello"+name);
+                if(isCancelled()){
+                    isCancel = true;
+                    break;
+                }
+                Log.d("brad","Hello,"+name);
+                i++;
+                publishProgress(i,name);            //裡面帶整數,傳遞到onProgressUpdate去執行
                 try {
                     Thread.sleep(500);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
                 }
             }
-            return null;
+            return isCancel?"Cancel!":"Game Over";
         }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {   //後
-            super.onPostExecute(aVoid);
-            Log.d("brad","onPostExecute");
+        @Override                    //第三個
+        protected void onPostExecute(String end) {   //後
+            super.onPostExecute(end);
+            Log.d("brad","onPostExecute"+ end);
 
         }
 
-        @Override
-        protected void onProgressUpdate(Void... values) {  //更新
+        @Override                       //第二個
+        protected void onProgressUpdate(Object... values) {  //更新
             super.onProgressUpdate(values);
             Log.d("brad","onProgressUpdate");
-
+            mesg.setText((Integer)values[0] +":"+ (String)values[1] );
         }
 
-        @Override
-        protected void onCancelled(Void aVoid) {        //結束
-            super.onCancelled(aVoid);
-            Log.d("brad","onCancelled");
+        @Override                  //第三個
+        protected void onCancelled(String end) {        //結束
+            super.onCancelled(end);
+            Log.d("brad","onCancelled" + end);
 
         }
     }
